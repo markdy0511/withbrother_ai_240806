@@ -6,7 +6,7 @@ st.set_page_config(
     page_icon = "🤖"
 )
 
-insert_logo.add_logo("C:\\Users\\markd\\AI\WithBrother-AI\\withbrother_logo.png")
+insert_logo.add_logo("withbrother_logo.png")
 
 
 st.title("WithBrother-AI Home")

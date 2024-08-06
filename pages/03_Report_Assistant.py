@@ -107,7 +107,7 @@ def filter_by_period(df, period_type, reference_date, start_of_week):
     #reference_date = pd.to_datetime(reference_date)
     
     if period_type == '일간':
-        filtered_df = df[(df['일자'] >= reference_date - timedelta(days=1)) & (df['date'] <= reference_date)]
+        filtered_df = df[(df['일자'] >= reference_date - timedelta(days=1)) & (df['일자'] <= reference_date)]
         now = reference_date
         pre = reference_date - timedelta(days=1)
         return filtered_df, now, pre

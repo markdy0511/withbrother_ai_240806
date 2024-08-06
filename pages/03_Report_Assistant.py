@@ -65,10 +65,10 @@ def load_data(file):
         try:
             try:
                 try:
-                    data = pd.read_csv(file, encoding='utf-8-sig')
+                    data = pd.read_csv(file)
                 except Exception as e:
                     st.error(f"An read csv error occurred: {e}")
-                    data = pd.read_excel(file, encoding='utf-8-sig')
+                    data = pd.read_excel(file)
             except Exception as ex:
                 st.error(f"An read excel error occurred: {ex}")
         except Exception as exc:

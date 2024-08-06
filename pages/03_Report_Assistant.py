@@ -7,8 +7,6 @@ import streamlit as st
 import insert_logo
 import pandas as pd
 from langchain.schema import StrOutputParser
-import matplotlib.pyplot as plt
-from matplotlib import font_manager, rc
 from PIL import Image
 
 st.set_page_config(

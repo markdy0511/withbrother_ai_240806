@@ -64,9 +64,9 @@ def load_data(file):
     if file is not None:
         try:
             try:
-                data = pd.read_csv(file)
+                data = pd.read_csv(file, encoding='utf-8-sig')
             except:
-                data = pd.read_excel(file)
+                data = pd.read_excel(file, encoding='utf-8-sig')
         except:
             data = pd.read_csv(history_file, encoding='cp949')
         return data

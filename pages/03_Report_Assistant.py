@@ -64,15 +64,10 @@ def load_data(file):
     if file is not None:
         try:
             try:
-                try:
                     data = pd.read_csv(file)
-                except Exception as e:
-                    st.error(f"An read csv error occurred: {e}")
-                    data = pd.read_excel(file)
-            except Exception as ex:
-                st.error(f"An read excel error occurred: {ex}")
-        except Exception as exc:
-            st.error(f"An read whole error occurred: {exc}")
+            except:
+                data = pd.read_excel(file)
+        except:
             data = pd.read_csv(history_file, encoding='cp949')
         return data
     return None

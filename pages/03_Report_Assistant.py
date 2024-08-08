@@ -963,16 +963,23 @@ if st.session_state.trans_metric_set:
                         ch_df.set_index(group_period, inplace=True)
                         ch_df.drop(columns=['매체'], inplace=True)
 
-                        ch_df.loc['변화량'] = ch_df.diff().iloc[1]
-                        # 새로운 증감율 행 생성
-                        increase_rate = []
-                        for col in ch_df.columns:
-                            rate = calculate_increase_rate(ch_df.loc[now_media, col], ch_df.loc[pre_media, col])
-                            increase_rate.append(rate)
+                        try:
+                            ch_df.loc['변화량'] = ch_df.diff().iloc[1]
+                        except:
+                            print(ch_df, "매체 변화량 계산 오류")
+                        
+                        try:
+                            # 새로운 증감율 행 생성
+                            increase_rate = []
+                            for col in ch_df.columns:
+                                rate = calculate_increase_rate(ch_df.loc[now_media, col], ch_df.loc[pre_media, col])
+                                increase_rate.append(rate)
 
-                        # 데이터프레임에 증감율 행 추가
-                        ch_df.loc['증감율'] = increase_rate
-                        #ch_df.loc['증감율'] = round(((ch_df.loc['4월 3주'] - ch_df.loc['4월 2주']) / ch_df.loc['4월 2주']) * 100, 2)
+                            # 데이터프레임에 증감율 행 추가
+                            ch_df.loc['증감율'] = increase_rate
+                            #ch_df.loc['증감율'] = round(((ch_df.loc['4월 3주'] - ch_df.loc['4월 2주']) / ch_df.loc['4월 2주']) * 100, 2)
+                        except:
+                            print(ch_df, "매체 증감율 계산 오류")
 
                         ch_description = "Periodical change data results in" + str(channel) + " :\n\n"
                         ch_description += ch_df.to_string()

@@ -965,7 +965,7 @@ if st.session_state.trans_metric_set:
 
                         try:
                             ch_df.loc['변화량'] = ch_df.diff().iloc[1]
-                        except:
+                        except IndexError as e:
                             print(ch_df, "매체 변화량 계산 오류")
                         
                         try:

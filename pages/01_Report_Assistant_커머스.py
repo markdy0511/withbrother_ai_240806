@@ -2923,7 +2923,7 @@ if st.session_state.trans_metric_set:
                 # 특정 열을 앞에 오도록 열 순서 재배치
                 i_columns = ['캠페인', group_period] + [col for col in i_df_combined.columns if (col != '캠페인') and (col != group_period)]
                 i_df_combined_re = i_df_combined[i_columns]
-                print(i_df_combined_re)
+                #print(i_df_combined_re)
                 
             now_ch_cmp_week = df_combined_re[df_combined_re[group_period] == now_media]
             i_now_ch_cmp_week = i_df_combined_re[i_df_combined_re[group_period] == now_media]

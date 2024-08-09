@@ -107,7 +107,7 @@ def filter_by_period(df, period_type, reference_date, start_of_week):
     
     if period_type == '일간':
         reference = pd.to_datetime(reference_date, format='%Y-%m-%d')
-        print(reference.strftime('%Y-%m-%d'))
+        #print(reference.strftime('%Y-%m-%d'))
         filtered_df = df[(df['일자'] >= reference - timedelta(days=1)) & (df['일자'] <= reference)]
         now = reference.strftime('%Y-%m-%d')
         pre = (reference - timedelta(days=1)).strftime('%Y-%m-%d')
@@ -558,12 +558,12 @@ if st.session_state.condition_set and (st.session_state.media_df is None) and (s
     
     with st.spinner("데이터 가져오는 중..."):
         media_df = load_data(media_file)
-        print(media_df.dtypes)
+        #print(media_df.dtypes)
         original_ga_df = load_data(ga_file)
-        print(original_ga_df.dtypes)
+        #print(original_ga_df.dtypes)
         original_ga_df['일자'] = pd.to_datetime(original_ga_df['일자'], format='%Y-%m-%d')
         original_history_df = load_data(history_file)
-        print(original_history_df.dtypes)
+        #print(original_history_df.dtypes)
 
         st.session_state.media_df = media_df
         st.session_state.original_ga_df = original_ga_df
@@ -735,7 +735,7 @@ if st.session_state.trans_metric_set:
 
                 description = "Periodical change data results:\n\n"
                 description += df_combined.to_string()
-                print(description)
+                #print(description)
 
                 previous_period = df_combined.iloc[0]
                 current_period = df_combined.iloc[1]
@@ -865,7 +865,7 @@ if st.session_state.trans_metric_set:
                     # 특정 열을 앞에 오도록 열 순서 재배치
                     columns = ['매체', group_period] + [col for col in df_combined.columns if (col != '매체') and (col != group_period)]
                     df_combined_re = df_combined[columns]
-                    print(df_combined_re)
+                    #print(df_combined_re)
 
                     result = {}
                     cal_ad_week = st.session_state.overview_ad_df_result
@@ -2862,7 +2862,7 @@ if st.session_state.trans_metric_set:
                 # 특정 열을 앞에 오도록 열 순서 재배치
                 columns = ['캠페인', group_period] + [col for col in df_combined.columns if (col != '캠페인') and (col != group_period)]
                 df_combined_re = df_combined[columns]
-                print(df_combined_re)
+                #print(df_combined_re)
 
                 
                 result = {}
@@ -3088,7 +3088,7 @@ if st.session_state.trans_metric_set:
                 # 특정 열을 앞에 오도록 열 순서 재배치
                 columns = ['광고그룹', group_period] + [col for col in df_combined.columns if (col != '광고그룹') and (col != group_period)]
                 df_combined_re = df_combined[columns]
-                print(df_combined_re)
+                #print(df_combined_re)
 
                 
                 result = {}
@@ -3147,7 +3147,7 @@ if st.session_state.trans_metric_set:
                 # 특정 열을 앞에 오도록 열 순서 재배치
                 i_columns = ['광고그룹', group_period] + [col for col in i_df_combined.columns if (col != '광고그룹') and (col != group_period)]
                 i_df_combined_re = i_df_combined[i_columns]
-                print(i_df_combined_re)
+                #print(i_df_combined_re)
                 
             now_ch_group_week = df_combined_re[df_combined_re[group_period] == now_media]
             i_now_ch_group_week = i_df_combined_re[i_df_combined_re[group_period] == now_media]
@@ -3289,7 +3289,7 @@ if st.session_state.trans_metric_set:
                 df_cleaned = df_combined.dropna(subset=['소재명/키워드'])
                 df_combined_re = df_cleaned[columns]
                 
-                print(df_combined_re)
+                #print(df_combined_re)
 
                 
                 result = {}
@@ -3349,7 +3349,7 @@ if st.session_state.trans_metric_set:
                 i_columns = ['매체','캠페인','광고그룹','소재명/키워드', group_period] + [col for col in i_df_combined.columns if  (col != '소재명/키워드') and (col != '매체') and (col != '캠페인') and (col != '광고그룹') and (col != group_period)]
                 i_df_cleaned = i_df_combined.dropna(subset=['소재명/키워드'])
                 i_df_combined_re = i_df_combined[i_columns]
-                print(i_df_combined_re)
+                #print(i_df_combined_re)
                 
             now_kwrd_da_week = df_combined_re[df_combined_re[group_period] == now_media]
             de_now_kwrd_da_week = i_df_combined_re[i_df_combined_re[group_period] == now_media]

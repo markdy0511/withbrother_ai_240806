@@ -2267,6 +2267,7 @@ if st.session_state.trans_metric_set:
     else:
         overview, ch_ranking, cmp_ranking, grp_ranking, kwrd_ranking, history, preview = st.tabs(["오버뷰","매체별 성과","매체 선택 캠페인 분석", "캠페인 선택 그룹 분석", "성과 상위 소재(키워드) 분석", '운영 히스토리',  '프리뷰'])
         internal_ch_df['일자'] = internal_ch_df['일자'].astype(str)
+        #ga_df['일자'] = ga_df['일자'].astype(str)
         try:
             ga_df['일자'] = ga_df['일자'].dt.strftime('%Y-%m-%d')
         except:
@@ -2448,21 +2449,26 @@ if st.session_state.trans_metric_set:
                     
                     ga_cal_ch_ad_week = ga_report_table(ga_ch_ad_week, list_trans_ga, selected_trans_ga, commerce_or_not)
 
-                    ga_cal_ch_ad_week['CPA'] = ga_cal_ch_ad_week['전환수'].apply(lambda x: cal_ch_ad_week['총비용'][ga_cal_ch_ad_week.index[ga_cal_ch_ad_week['전환수'] == x][0]] / x if x != 0 else 0)
-                    ga_cal_ch_ad_week['CPA'] = pd.to_numeric(ga_cal_ch_ad_week['CPA'], errors='coerce')
-                    ga_cal_ch_ad_week['CPA'] = ga_cal_ch_ad_week['CPA'].round(0)
+                    try:
+                        ga_cal_ch_ad_week['CPA'] = ga_cal_ch_ad_week['전환수'].apply(lambda x: cal_ch_ad_week['총비용'][ga_cal_ch_ad_week.index[ga_cal_ch_ad_week['전환수'] == x][0]] / x if x != 0 else 0)
+                        ga_cal_ch_ad_week['CPA'] = pd.to_numeric(ga_cal_ch_ad_week['CPA'], errors='coerce')
+                        ga_cal_ch_ad_week['CPA'] = ga_cal_ch_ad_week['CPA'].round(0)
+    
+                        ga_cal_ch_ad_week['ROAS'] = ga_cal_ch_ad_week['구매액'].apply(lambda x: cal_ch_ad_week['총비용'][ga_cal_ch_ad_week.index[ga_cal_ch_ad_week['구매액'] == x][0]] / x * 100 if x != 0 else 0)
+                        #ga_cal_ch_ad_week['ROAS'] = (ga_cal_ch_ad_week['구매액'] / cal_ch_ad_week['총비용']) * 100
+                        ga_cal_ch_ad_week['ROAS'] = pd.to_numeric(ga_cal_ch_ad_week['ROAS'], errors='coerce')
+                        ga_cal_ch_ad_week['ROAS'] = ga_cal_ch_ad_week['ROAS'].round(0)
+                        ga_cal_ch_ad_week['전환율'] = (ga_cal_ch_ad_week['구매'] / cal_ch_ad_week['클릭수']) * 100
+                        ga_cal_ch_ad_week['전환율'] = pd.to_numeric(ga_cal_ch_ad_week['전환율'], errors='coerce')
+                        ga_cal_ch_ad_week['전환율'] = ga_cal_ch_ad_week['전환율'].round(2)
+                        
+                        ga_cal_ch_ad_week.columns = [f'GA_{col}' for col in ga_cal_ch_ad_week.columns]
+    
+                        df_combined = pd.concat([cal_ch_ad_week, ga_cal_ch_ad_week], axis=1)
+                    except:
+                        df_combined = cal_ch_ad_week
 
-                    ga_cal_ch_ad_week['ROAS'] = ga_cal_ch_ad_week['구매액'].apply(lambda x: cal_ch_ad_week['총비용'][ga_cal_ch_ad_week.index[ga_cal_ch_ad_week['구매액'] == x][0]] / x * 100 if x != 0 else 0)
-                    #ga_cal_ch_ad_week['ROAS'] = (ga_cal_ch_ad_week['구매액'] / cal_ch_ad_week['총비용']) * 100
-                    ga_cal_ch_ad_week['ROAS'] = pd.to_numeric(ga_cal_ch_ad_week['ROAS'], errors='coerce')
-                    ga_cal_ch_ad_week['ROAS'] = ga_cal_ch_ad_week['ROAS'].round(0)
-                    ga_cal_ch_ad_week['전환율'] = (ga_cal_ch_ad_week['구매'] / cal_ch_ad_week['클릭수']) * 100
-                    ga_cal_ch_ad_week['전환율'] = pd.to_numeric(ga_cal_ch_ad_week['전환율'], errors='coerce')
-                    ga_cal_ch_ad_week['전환율'] = ga_cal_ch_ad_week['전환율'].round(2)
-                    
-                    ga_cal_ch_ad_week.columns = [f'GA_{col}' for col in ga_cal_ch_ad_week.columns]
-
-                    df_combined = pd.concat([cal_ch_ad_week, ga_cal_ch_ad_week], axis=1)
+                        
                     df_combined.reset_index(inplace=True)
                     df_combined[['매체', group_period]] = pd.DataFrame(df_combined['index'].tolist(), index=df_combined.index)
                     df_combined.drop(columns=['index'], inplace=True)
@@ -2808,23 +2814,27 @@ if st.session_state.trans_metric_set:
                     st.write("※※※ 업로드하신 데이터에 캠페인 정보가 없습니다. 다른 매체를 선택해주세요. ※※※")
                 
                 ga_cal_ch_ad_week = ga_report_table(ga_ch_ad_week, list_trans_ga, selected_trans_ga, commerce_or_not)
-                st.write(ga_cal_ch_ad_week)
-                ga_cal_ch_ad_week['CPA'] = ga_cal_ch_ad_week['전환수'].apply(lambda x: cal_ch_ad_week['총비용'][ga_cal_ch_ad_week.index[ga_cal_ch_ad_week['전환수'] == x][0]] / x if x != 0 else 0)
-                #ga_cal_ch_ad_week['CPA'] = (cal_ch_ad_week['총비용'] / ga_cal_ch_ad_week['전환수'])
-                ga_cal_ch_ad_week['CPA'] = pd.to_numeric(ga_cal_ch_ad_week['CPA'], errors='coerce')
-                ga_cal_ch_ad_week['CPA'] = ga_cal_ch_ad_week['CPA'].round(0)
-
-                ga_cal_ch_ad_week['CPA'] = ga_cal_ch_ad_week['구매액'].apply(lambda x: cal_ch_ad_week['총비용'][ga_cal_ch_ad_week.index[ga_cal_ch_ad_week['구매액'] == x][0]] / x * 100 if x != 0 else 0)
-                #ga_cal_ch_ad_week['ROAS'] = (ga_cal_ch_ad_week['구매액'] / cal_ch_ad_week['총비용']) * 100
-                ga_cal_ch_ad_week['ROAS'] = pd.to_numeric(ga_cal_ch_ad_week['ROAS'], errors='coerce')
-                ga_cal_ch_ad_week['ROAS'] = ga_cal_ch_ad_week['ROAS'].round(0)
-                ga_cal_ch_ad_week['전환율'] = (ga_cal_ch_ad_week['구매'] / cal_ch_ad_week['클릭수']) * 100
-                ga_cal_ch_ad_week['전환율'] = pd.to_numeric(ga_cal_ch_ad_week['전환율'], errors='coerce')
-                ga_cal_ch_ad_week['전환율'] = ga_cal_ch_ad_week['전환율'].round(2)
+                #st.write(ga_cal_ch_ad_week)
+                try:
+                    ga_cal_ch_ad_week['CPA'] = ga_cal_ch_ad_week['전환수'].apply(lambda x: cal_ch_ad_week['총비용'][ga_cal_ch_ad_week.index[ga_cal_ch_ad_week['전환수'] == x][0]] / x if x != 0 else 0)
+                    #ga_cal_ch_ad_week['CPA'] = (cal_ch_ad_week['총비용'] / ga_cal_ch_ad_week['전환수'])
+                    ga_cal_ch_ad_week['CPA'] = pd.to_numeric(ga_cal_ch_ad_week['CPA'], errors='coerce')
+                    ga_cal_ch_ad_week['CPA'] = ga_cal_ch_ad_week['CPA'].round(0)
+    
+                    ga_cal_ch_ad_week['CPA'] = ga_cal_ch_ad_week['구매액'].apply(lambda x: cal_ch_ad_week['총비용'][ga_cal_ch_ad_week.index[ga_cal_ch_ad_week['구매액'] == x][0]] / x * 100 if x != 0 else 0)
+                    #ga_cal_ch_ad_week['ROAS'] = (ga_cal_ch_ad_week['구매액'] / cal_ch_ad_week['총비용']) * 100
+                    ga_cal_ch_ad_week['ROAS'] = pd.to_numeric(ga_cal_ch_ad_week['ROAS'], errors='coerce')
+                    ga_cal_ch_ad_week['ROAS'] = ga_cal_ch_ad_week['ROAS'].round(0)
+                    ga_cal_ch_ad_week['전환율'] = (ga_cal_ch_ad_week['구매'] / cal_ch_ad_week['클릭수']) * 100
+                    ga_cal_ch_ad_week['전환율'] = pd.to_numeric(ga_cal_ch_ad_week['전환율'], errors='coerce')
+                    ga_cal_ch_ad_week['전환율'] = ga_cal_ch_ad_week['전환율'].round(2)
+                    
+                    ga_cal_ch_ad_week.columns = [f'GA_{col}' for col in ga_cal_ch_ad_week.columns]
+    
+                    df_combined = pd.concat([cal_ch_ad_week, ga_cal_ch_ad_week], axis=1)
+                except:
+                    df_combined = cal_ch_ad_week
                 
-                ga_cal_ch_ad_week.columns = [f'GA_{col}' for col in ga_cal_ch_ad_week.columns]
-
-                df_combined = pd.concat([cal_ch_ad_week, ga_cal_ch_ad_week], axis=1)
                 df_combined.reset_index(inplace=True)
                 df_combined[['캠페인', group_period]] = pd.DataFrame(df_combined['index'].tolist(), index=df_combined.index)
                 df_combined.drop(columns=['index'], inplace=True)
@@ -2864,23 +2874,27 @@ if st.session_state.trans_metric_set:
                 i_ga_ch_ad_week.index.names = ['캠페인', group_period]
                 
                 i_ga_cal_ch_ad_week = ga_report_table(i_ga_ch_ad_week, list_trans_ga, selected_trans_ga, commerce_or_not)
-                
-                i_ga_cal_ch_ad_week['CPA'] = i_ga_cal_ch_ad_week['전환수'].apply(lambda x: i_cal_ch_ad_week['총비용'][i_ga_cal_ch_ad_week.index[i_ga_cal_ch_ad_week['전환수'] == x][0]] / x if x != 0 else 0)
-                #i_ga_cal_ch_ad_week['CPA'] = (i_cal_ch_ad_week['총비용'] / i_ga_cal_ch_ad_week['전환수'])
-                i_ga_cal_ch_ad_week['CPA'] = pd.to_numeric(i_ga_cal_ch_ad_week['CPA'], errors='coerce')
-                i_ga_cal_ch_ad_week['CPA'] = i_ga_cal_ch_ad_week['CPA'].round(0)
 
-                i_ga_cal_ch_ad_week['ROAS'] = i_ga_cal_ch_ad_week['구매액'].apply(lambda x: i_cal_ch_ad_week['총비용'][i_ga_cal_ch_ad_week.index[i_ga_cal_ch_ad_week['구매액'] == x][0]] / x * 100 if x != 0 else 0)
-                i_ga_cal_ch_ad_week['ROAS'] = (i_ga_cal_ch_ad_week['구매액'] / i_cal_ch_ad_week['총비용']) * 100
-                i_ga_cal_ch_ad_week['ROAS'] = pd.to_numeric(i_ga_cal_ch_ad_week['ROAS'], errors='coerce')
-                i_ga_cal_ch_ad_week['ROAS'] = i_ga_cal_ch_ad_week['ROAS'].round(0)
-                i_ga_cal_ch_ad_week['전환율'] = (i_ga_cal_ch_ad_week['구매'] / i_cal_ch_ad_week['클릭수']) * 100
-                i_ga_cal_ch_ad_week['전환율'] = pd.to_numeric(i_ga_cal_ch_ad_week['전환율'], errors='coerce')
-                i_ga_cal_ch_ad_week['전환율'] = i_ga_cal_ch_ad_week['전환율'].round(2)
-                
-                i_ga_cal_ch_ad_week.columns = [f'GA_{col}' for col in i_ga_cal_ch_ad_week.columns]
-
-                i_df_combined = pd.concat([i_cal_ch_ad_week, i_ga_cal_ch_ad_week], axis=1)
+                try:
+                    i_ga_cal_ch_ad_week['CPA'] = i_ga_cal_ch_ad_week['전환수'].apply(lambda x: i_cal_ch_ad_week['총비용'][i_ga_cal_ch_ad_week.index[i_ga_cal_ch_ad_week['전환수'] == x][0]] / x if x != 0 else 0)
+                    #i_ga_cal_ch_ad_week['CPA'] = (i_cal_ch_ad_week['총비용'] / i_ga_cal_ch_ad_week['전환수'])
+                    i_ga_cal_ch_ad_week['CPA'] = pd.to_numeric(i_ga_cal_ch_ad_week['CPA'], errors='coerce')
+                    i_ga_cal_ch_ad_week['CPA'] = i_ga_cal_ch_ad_week['CPA'].round(0)
+    
+                    i_ga_cal_ch_ad_week['ROAS'] = i_ga_cal_ch_ad_week['구매액'].apply(lambda x: i_cal_ch_ad_week['총비용'][i_ga_cal_ch_ad_week.index[i_ga_cal_ch_ad_week['구매액'] == x][0]] / x * 100 if x != 0 else 0)
+                    i_ga_cal_ch_ad_week['ROAS'] = (i_ga_cal_ch_ad_week['구매액'] / i_cal_ch_ad_week['총비용']) * 100
+                    i_ga_cal_ch_ad_week['ROAS'] = pd.to_numeric(i_ga_cal_ch_ad_week['ROAS'], errors='coerce')
+                    i_ga_cal_ch_ad_week['ROAS'] = i_ga_cal_ch_ad_week['ROAS'].round(0)
+                    i_ga_cal_ch_ad_week['전환율'] = (i_ga_cal_ch_ad_week['구매'] / i_cal_ch_ad_week['클릭수']) * 100
+                    i_ga_cal_ch_ad_week['전환율'] = pd.to_numeric(i_ga_cal_ch_ad_week['전환율'], errors='coerce')
+                    i_ga_cal_ch_ad_week['전환율'] = i_ga_cal_ch_ad_week['전환율'].round(2)
+                    
+                    i_ga_cal_ch_ad_week.columns = [f'GA_{col}' for col in i_ga_cal_ch_ad_week.columns]
+    
+                    i_df_combined = pd.concat([i_cal_ch_ad_week, i_ga_cal_ch_ad_week], axis=1)
+                except:
+                    i_df_combined = i_cal_ch_ad_week
+                    
                 i_df_combined.reset_index(inplace=True)
                 i_df_combined[['캠페인', group_period]] = pd.DataFrame(i_df_combined['index'].tolist(), index=i_df_combined.index)
                 i_df_combined.drop(columns=['index'], inplace=True)
@@ -3026,21 +3040,25 @@ if st.session_state.trans_metric_set:
                     st.write("※※※ 업로드하신 데이터에 광고그룹 정보가 없습니다. 다른 캠페인을 선택해주세요. ※※※")
                 
                 ga_cal_ch_ad_week = ga_report_table(ga_ch_ad_week, list_trans_ga, selected_trans_ga, commerce_or_not)
-                
-                ga_cal_ch_ad_week['CPA'] = (cal_ch_ad_week['총비용'] / ga_cal_ch_ad_week['전환수'])
-                ga_cal_ch_ad_week['CPA'] = pd.to_numeric(ga_cal_ch_ad_week['CPA'], errors='coerce')
-                ga_cal_ch_ad_week['CPA'] = ga_cal_ch_ad_week['CPA'].round(0)
 
-                ga_cal_ad_week['ROAS'] = (ga_cal_ad_week['구매액'] / cal_ad_week['총비용']) * 100
-                ga_cal_ad_week['ROAS'] = pd.to_numeric(ga_cal_ad_week['ROAS'], errors='coerce')
-                ga_cal_ad_week['ROAS'] = ga_cal_ad_week['ROAS'].round(0)
-                ga_cal_ad_week['전환율'] = (ga_cal_ad_week['구매'] / cal_ad_week['클릭수']) * 100
-                ga_cal_ad_week['전환율'] = pd.to_numeric(ga_cal_ad_week['전환율'], errors='coerce')
-                ga_cal_ad_week['전환율'] = ga_cal_ad_week['전환율'].round(2)
-                
-                ga_cal_ch_ad_week.columns = [f'GA_{col}' for col in ga_cal_ch_ad_week.columns]
-
-                df_combined = pd.concat([cal_ch_ad_week, ga_cal_ch_ad_week], axis=1)
+                try:
+                    ga_cal_ch_ad_week['CPA'] = (cal_ch_ad_week['총비용'] / ga_cal_ch_ad_week['전환수'])
+                    ga_cal_ch_ad_week['CPA'] = pd.to_numeric(ga_cal_ch_ad_week['CPA'], errors='coerce')
+                    ga_cal_ch_ad_week['CPA'] = ga_cal_ch_ad_week['CPA'].round(0)
+    
+                    ga_cal_ad_week['ROAS'] = (ga_cal_ad_week['구매액'] / cal_ad_week['총비용']) * 100
+                    ga_cal_ad_week['ROAS'] = pd.to_numeric(ga_cal_ad_week['ROAS'], errors='coerce')
+                    ga_cal_ad_week['ROAS'] = ga_cal_ad_week['ROAS'].round(0)
+                    ga_cal_ad_week['전환율'] = (ga_cal_ad_week['구매'] / cal_ad_week['클릭수']) * 100
+                    ga_cal_ad_week['전환율'] = pd.to_numeric(ga_cal_ad_week['전환율'], errors='coerce')
+                    ga_cal_ad_week['전환율'] = ga_cal_ad_week['전환율'].round(2)
+                    
+                    ga_cal_ch_ad_week.columns = [f'GA_{col}' for col in ga_cal_ch_ad_week.columns]
+    
+                    df_combined = pd.concat([cal_ch_ad_week, ga_cal_ch_ad_week], axis=1)
+                except:
+                    df_combined = cal_ch_ad_week
+                    
                 df_combined.reset_index(inplace=True)
                 df_combined[['광고그룹', group_period]] = pd.DataFrame(df_combined['index'].tolist(), index=df_combined.index)
                 df_combined.drop(columns=['index'], inplace=True)
@@ -3080,21 +3098,25 @@ if st.session_state.trans_metric_set:
                 i_ga_ch_ad_week.index.names = ['광고그룹', group_period]
                 
                 i_ga_cal_ch_ad_week = ga_report_table(i_ga_ch_ad_week, list_trans_ga, selected_trans_ga, commerce_or_not)
-                
-                i_ga_cal_ch_ad_week['CPA'] = (i_cal_ch_ad_week['총비용'] / i_ga_cal_ch_ad_week['전환수'])
-                i_ga_cal_ch_ad_week['CPA'] = pd.to_numeric(i_ga_cal_ch_ad_week['CPA'], errors='coerce')
-                i_ga_cal_ch_ad_week['CPA'] = i_ga_cal_ch_ad_week['CPA'].round(0)
 
-                i_ga_cal_ch_ad_week['ROAS'] = (i_ga_cal_ch_ad_week['구매액'] / cal_ad_week['총비용']) * 100
-                i_ga_cal_ch_ad_week['ROAS'] = pd.to_numeric(i_ga_cal_ch_ad_week['ROAS'], errors='coerce')
-                i_ga_cal_ch_ad_week['ROAS'] = i_ga_cal_ch_ad_week['ROAS'].round(0)
-                i_ga_cal_ch_ad_week['전환율'] = (i_ga_cal_ch_ad_week['구매'] / cal_ad_week['클릭수']) * 100
-                i_ga_cal_ch_ad_week['전환율'] = pd.to_numeric(i_ga_cal_ch_ad_week['전환율'], errors='coerce')
-                i_ga_cal_ch_ad_week['전환율'] = i_ga_cal_ch_ad_week['전환율'].round(2)
+                try:
+                    i_ga_cal_ch_ad_week['CPA'] = (i_cal_ch_ad_week['총비용'] / i_ga_cal_ch_ad_week['전환수'])
+                    i_ga_cal_ch_ad_week['CPA'] = pd.to_numeric(i_ga_cal_ch_ad_week['CPA'], errors='coerce')
+                    i_ga_cal_ch_ad_week['CPA'] = i_ga_cal_ch_ad_week['CPA'].round(0)
+    
+                    i_ga_cal_ch_ad_week['ROAS'] = (i_ga_cal_ch_ad_week['구매액'] / cal_ad_week['총비용']) * 100
+                    i_ga_cal_ch_ad_week['ROAS'] = pd.to_numeric(i_ga_cal_ch_ad_week['ROAS'], errors='coerce')
+                    i_ga_cal_ch_ad_week['ROAS'] = i_ga_cal_ch_ad_week['ROAS'].round(0)
+                    i_ga_cal_ch_ad_week['전환율'] = (i_ga_cal_ch_ad_week['구매'] / cal_ad_week['클릭수']) * 100
+                    i_ga_cal_ch_ad_week['전환율'] = pd.to_numeric(i_ga_cal_ch_ad_week['전환율'], errors='coerce')
+                    i_ga_cal_ch_ad_week['전환율'] = i_ga_cal_ch_ad_week['전환율'].round(2)
+                    
+                    i_ga_cal_ch_ad_week.columns = [f'GA_{col}' for col in i_ga_cal_ch_ad_week.columns]
+    
+                    i_df_combined = pd.concat([i_cal_ch_ad_week, i_ga_cal_ch_ad_week], axis=1)
+                except:
+                    i_df_combined = i_cal_ch_ad_week
                 
-                i_ga_cal_ch_ad_week.columns = [f'GA_{col}' for col in i_ga_cal_ch_ad_week.columns]
-
-                i_df_combined = pd.concat([i_cal_ch_ad_week, i_ga_cal_ch_ad_week], axis=1)
                 i_df_combined.reset_index(inplace=True)
                 i_df_combined[['광고그룹', group_period]] = pd.DataFrame(i_df_combined['index'].tolist(), index=i_df_combined.index)
                 i_df_combined.drop(columns=['index'], inplace=True)
@@ -3215,21 +3237,24 @@ if st.session_state.trans_metric_set:
                     st.write("※※※ 업로드하신 데이터에 소재명/키워드 정보가 없습니다. 다른 캠페인을 선택해주세요. ※※※")
                 
                 ga_cal_ch_ad_week = ga_report_table(ga_ch_ad_week, list_trans_ga, selected_trans_ga, commerce_or_not)
-                
-                ga_cal_ch_ad_week['CPA'] = (cal_ch_ad_week['총비용'] / ga_cal_ch_ad_week['전환수'])
-                ga_cal_ch_ad_week['CPA'] = pd.to_numeric(ga_cal_ch_ad_week['CPA'], errors='coerce')
-                ga_cal_ch_ad_week['CPA'] = ga_cal_ch_ad_week['CPA'].round(0)
 
-                ga_cal_ad_week['ROAS'] = (ga_cal_ad_week['구매액'] / cal_ad_week['총비용']) * 100
-                ga_cal_ad_week['ROAS'] = pd.to_numeric(ga_cal_ad_week['ROAS'], errors='coerce')
-                ga_cal_ad_week['ROAS'] = ga_cal_ad_week['ROAS'].round(0)
-                ga_cal_ad_week['전환율'] = (ga_cal_ad_week['구매'] / cal_ad_week['클릭수']) * 100
-                ga_cal_ad_week['전환율'] = pd.to_numeric(ga_cal_ad_week['전환율'], errors='coerce')
-                ga_cal_ad_week['전환율'] = ga_cal_ad_week['전환율'].round(2)
-                
-                ga_cal_ch_ad_week.columns = [f'GA_{col}' for col in ga_cal_ch_ad_week.columns]
-
-                df_combined = pd.concat([cal_ch_ad_week, ga_cal_ch_ad_week], axis=1)
+                try:
+                    ga_cal_ch_ad_week['CPA'] = (cal_ch_ad_week['총비용'] / ga_cal_ch_ad_week['전환수'])
+                    ga_cal_ch_ad_week['CPA'] = pd.to_numeric(ga_cal_ch_ad_week['CPA'], errors='coerce')
+                    ga_cal_ch_ad_week['CPA'] = ga_cal_ch_ad_week['CPA'].round(0)
+    
+                    ga_cal_ad_week['ROAS'] = (ga_cal_ad_week['구매액'] / cal_ad_week['총비용']) * 100
+                    ga_cal_ad_week['ROAS'] = pd.to_numeric(ga_cal_ad_week['ROAS'], errors='coerce')
+                    ga_cal_ad_week['ROAS'] = ga_cal_ad_week['ROAS'].round(0)
+                    ga_cal_ad_week['전환율'] = (ga_cal_ad_week['구매'] / cal_ad_week['클릭수']) * 100
+                    ga_cal_ad_week['전환율'] = pd.to_numeric(ga_cal_ad_week['전환율'], errors='coerce')
+                    ga_cal_ad_week['전환율'] = ga_cal_ad_week['전환율'].round(2)
+                    
+                    ga_cal_ch_ad_week.columns = [f'GA_{col}' for col in ga_cal_ch_ad_week.columns]
+    
+                    df_combined = pd.concat([cal_ch_ad_week, ga_cal_ch_ad_week], axis=1)
+                except:
+                    df_combined = cal_ch_ad_week
                 df_combined.reset_index(inplace=True)
                 df_combined[['소재명/키워드', group_period]] = pd.DataFrame(df_combined['index'].tolist(), index=df_combined.index)
                 df_combined.drop(columns=['index'], inplace=True)
@@ -3269,21 +3294,25 @@ if st.session_state.trans_metric_set:
                 i_ga_ch_ad_week.index.names = ['매체','캠페인','광고그룹','소재명/키워드', group_period]
                 
                 i_ga_cal_ch_ad_week = ga_report_table(i_ga_ch_ad_week, list_trans_ga, selected_trans_ga, commerce_or_not)
-                
-                i_ga_cal_ch_ad_week['CPA'] = (i_cal_ch_ad_week['총비용'] / i_ga_cal_ch_ad_week['전환수'])
-                i_ga_cal_ch_ad_week['CPA'] = pd.to_numeric(i_ga_cal_ch_ad_week['CPA'], errors='coerce')
-                i_ga_cal_ch_ad_week['CPA'] = i_ga_cal_ch_ad_week['CPA'].round(0)
 
-                i_ga_cal_ch_ad_week['ROAS'] = (i_ga_cal_ch_ad_week['구매액'] / cal_ad_week['총비용']) * 100
-                i_ga_cal_ch_ad_week['ROAS'] = pd.to_numeric(i_ga_cal_ch_ad_week['ROAS'], errors='coerce')
-                i_ga_cal_ch_ad_week['ROAS'] = i_ga_cal_ch_ad_week['ROAS'].round(0)
-                i_ga_cal_ch_ad_week['전환율'] = (i_ga_cal_ch_ad_week['구매'] / cal_ad_week['클릭수']) * 100
-                i_ga_cal_ch_ad_week['전환율'] = pd.to_numeric(i_ga_cal_ch_ad_week['전환율'], errors='coerce')
-                i_ga_cal_ch_ad_week['전환율'] = i_ga_cal_ch_ad_week['전환율'].round(2)
+                try:
+                    i_ga_cal_ch_ad_week['CPA'] = (i_cal_ch_ad_week['총비용'] / i_ga_cal_ch_ad_week['전환수'])
+                    i_ga_cal_ch_ad_week['CPA'] = pd.to_numeric(i_ga_cal_ch_ad_week['CPA'], errors='coerce')
+                    i_ga_cal_ch_ad_week['CPA'] = i_ga_cal_ch_ad_week['CPA'].round(0)
+    
+                    i_ga_cal_ch_ad_week['ROAS'] = (i_ga_cal_ch_ad_week['구매액'] / cal_ad_week['총비용']) * 100
+                    i_ga_cal_ch_ad_week['ROAS'] = pd.to_numeric(i_ga_cal_ch_ad_week['ROAS'], errors='coerce')
+                    i_ga_cal_ch_ad_week['ROAS'] = i_ga_cal_ch_ad_week['ROAS'].round(0)
+                    i_ga_cal_ch_ad_week['전환율'] = (i_ga_cal_ch_ad_week['구매'] / cal_ad_week['클릭수']) * 100
+                    i_ga_cal_ch_ad_week['전환율'] = pd.to_numeric(i_ga_cal_ch_ad_week['전환율'], errors='coerce')
+                    i_ga_cal_ch_ad_week['전환율'] = i_ga_cal_ch_ad_week['전환율'].round(2)
+                    
+                    i_ga_cal_ch_ad_week.columns = [f'GA_{col}' for col in i_ga_cal_ch_ad_week.columns]
+    
+                    i_df_combined = pd.concat([i_cal_ch_ad_week, i_ga_cal_ch_ad_week], axis=1)
+                except:
+                    i_df_combined = i_cal_ch_ad_week
                 
-                i_ga_cal_ch_ad_week.columns = [f'GA_{col}' for col in i_ga_cal_ch_ad_week.columns]
-
-                i_df_combined = pd.concat([i_cal_ch_ad_week, i_ga_cal_ch_ad_week], axis=1)
                 i_df_combined.reset_index(inplace=True)
                 i_df_combined[['매체','캠페인','광고그룹','소재명/키워드', group_period]] = pd.DataFrame(i_df_combined['index'].tolist(), index=i_df_combined.index)
                 i_df_combined.drop(columns=['index'], inplace=True)

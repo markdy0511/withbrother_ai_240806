@@ -2492,7 +2492,7 @@ if st.session_state.trans_metric_set:
                     # 특정 열을 앞에 오도록 열 순서 재배치
                     columns = ['매체', group_period] + [col for col in df_combined.columns if (col != '매체') and (col != group_period)]
                     df_combined_re = df_combined[columns]
-                    print(df_combined_re)
+                    #print(df_combined_re)
 
                     result = {}
                     cal_ad_week = st.session_state.overview_ad_df_result
@@ -2585,8 +2585,8 @@ if st.session_state.trans_metric_set:
 
                     df_impact_description = "Periodical change data results influencing by channel:\n\n"
                     df_impact_description += df_impact_changes.to_string()
-                    print(df_per_description)
-                    print(df_impact_description)
+                    #print(df_per_description)
+                    #print(df_impact_description)
 
                     #매체별 성과 증감 비교
                     dic_ch_ad_week = {}
